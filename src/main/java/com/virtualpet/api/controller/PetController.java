@@ -1,6 +1,9 @@
 package com.virtualpet.api.controller;
 
+import com.virtualpet.api.dto.PetRequest;
 import com.virtualpet.api.model.Pet; // Asegúrate de importar tu entidad Pet
+import com.virtualpet.api.service.PetService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +12,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/pets")
+@RequiredArgsConstructor
 public class PetController {
+
+    private final PetService petService; // Inyectamos el servicio
 
     // --- MÉTODOS CRUD PARA MASCOTAS ---
     // Aún no hemos creado el PetService, pero este es un adelanto de cómo se verá.
@@ -17,32 +23,30 @@ public class PetController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<String> getAllPetsForUser() {
-        // TODO: Implementar la lógica para devolver las mascotas del usuario autenticado
-        // O todas si el usuario es ADMIN
-        return ResponseEntity.ok("Respuesta provisional: Lista de mascotas");
+    public ResponseEntity<List<Pet>> getAllPetsForUser() {
+        // Devolvemos la lista real de mascotas
+        return ResponseEntity.ok(petService.getPetsForCurrentUser());
     }
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<String> createPet() {
-        // TODO: Implementar la lógica para crear una mascota
-        return ResponseEntity.ok("Respuesta provisional: Mascota creada");
+    public ResponseEntity<Pet> createPet(@RequestBody PetRequest petRequest) {
+        // Creamos la mascota y devolvemos el objeto creado
+        return ResponseEntity.ok(petService.createPet(petRequest));
     }
+
+    // Añade estos métodos dentro de la clase PetController.java
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<String> updatePet(@PathVariable Long id) {
-        // TODO: Implementar la lógica para actualizar una mascota
-        // Asegurarse que el USER solo puede actualizar sus propias mascotas.
-        return ResponseEntity.ok("Respuesta provisional: Mascota " + id + " actualizada");
+    public ResponseEntity<Pet> updatePet(@PathVariable Long id, @RequestBody PetRequest petRequest) {
+        return ResponseEntity.ok(petService.updatePet(id, petRequest));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<String> deletePet(@PathVariable Long id) {
-        // TODO: Implementar la lógica para eliminar una mascota
-        // Asegurarse que el USER solo puede eliminar sus propias mascotas.
-        return ResponseEntity.ok("Respuesta provisional: Mascota " + id + " eliminada");
+    public ResponseEntity<Void> deletePet(@PathVariable Long id) {
+        petService.deletePet(id);
+        return ResponseEntity.noContent().build(); // Devuelve 204 No Content, estándar para delete
     }
 }
