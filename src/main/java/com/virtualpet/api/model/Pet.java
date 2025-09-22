@@ -22,15 +22,17 @@ public class Pet {
     @NotBlank(message = "El nombre de la mascota no puede estar vacío")
     private String name;
 
-    @NotBlank(message = "El tipo de criatura no puede estar vacío")
-    private String creatureType; // Ej: "Dragón", "Unicornio", etc.
+    private String creatureType; // Lo dejamos para el tipo "Humo"
 
     private String color;
-    private String mood; // Estado de ánimo
-    private int energyLevel; // Nivel de energía
 
-    // --- Relación con User ---
-    @ManyToOne(fetch = FetchType.LAZY) // JPA: Muchos pets pueden pertenecer a Un usuario.
-    @JoinColumn(name = "user_id", nullable = false) // JPA: Define la columna de la clave foránea.
+    private String specialFeatures; // Campo nuevo
+
+    private int hunger; // Campo nuevo (reemplaza energyLevel)
+
+    private int sadness; // Campo nuevo (reemplaza mood)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }

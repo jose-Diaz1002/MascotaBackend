@@ -49,4 +49,17 @@ public class PetController {
         petService.deletePet(id);
         return ResponseEntity.noContent().build(); // Devuelve 204 No Content, estándar para delete
     }
+
+    // --- NUEVOS ENDPOINTS DE INTERACCIÓN ---
+    @PostMapping("/{id}/feed")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Pet> feedPet(@PathVariable Long id) {
+        return ResponseEntity.ok(petService.feedPet(id));
+    }
+
+    @PostMapping("/{id}/cuddle")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Pet> cuddlePet(@PathVariable Long id) {
+        return ResponseEntity.ok(petService.cuddlePet(id));
+    }
 }

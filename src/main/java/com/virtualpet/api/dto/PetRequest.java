@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PetRequest {
     private String name;
-    private String creatureType;
     private String color;
+    private String specialFeatures;
 }
