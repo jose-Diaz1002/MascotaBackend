@@ -1,13 +1,12 @@
 package com.virtualpet.api.controller;
 
 import com.virtualpet.api.dto.PetRequest;
-import com.virtualpet.api.model.Pet; // Asegúrate de importar tu entidad Pet
+import com.virtualpet.api.dto.PetResponse; // Asegúrate de importar PetResponse
 import com.virtualpet.api.service.PetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -15,51 +14,43 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PetController {
 
-    private final PetService petService; // Inyectamos el servicio
-
-    // --- MÉTODOS CRUD PARA MASCOTAS ---
-    // Aún no hemos creado el PetService, pero este es un adelanto de cómo se verá.
-    // La lógica real irá en el servicio.
+    private final PetService petService;
 
     @GetMapping
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<List<Pet>> getAllPetsForUser() {
-        // Devolvemos la lista real de mascotas
+    public ResponseEntity<List<PetResponse>> getPets() { // Cambiado a List<PetResponse>
         return ResponseEntity.ok(petService.getPetsForCurrentUser());
     }
 
-    @PostMapping
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Pet> createPet(@RequestBody PetRequest petRequest) {
-        // Creamos la mascota y devolvemos el objeto creado
-        return ResponseEntity.ok(petService.createPet(petRequest));
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<PetResponse>> getAllPetsForAdmin() { // Cambiado a List<PetResponse>
+        return ResponseEntity.ok(petService.getAllPets());
     }
 
-    // Añade estos métodos dentro de la clase PetController.java
+    @PostMapping
+    public ResponseEntity<PetResponse> createPet(@RequestBody PetRequest request) { // Cambiado a PetResponse
+        return ResponseEntity.ok(petService.createPet(request));
+    }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<Pet> updatePet(@PathVariable Long id, @RequestBody PetRequest petRequest) {
-        return ResponseEntity.ok(petService.updatePet(id, petRequest));
+    public ResponseEntity<PetResponse> updatePet(@PathVariable Long id, @RequestBody PetRequest request) { // Cambiado a PetResponse
+        return ResponseEntity.ok(petService.updatePet(id, request));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Void> deletePet(@PathVariable Long id) {
         petService.deletePet(id);
-        return ResponseEntity.noContent().build(); // Devuelve 204 No Content, estándar para delete
+        return ResponseEntity.noContent().build();
     }
 
-    // --- NUEVOS ENDPOINTS DE INTERACCIÓN ---
     @PostMapping("/{id}/feed")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Pet> feedPet(@PathVariable Long id) {
+    public ResponseEntity<PetResponse> feedPet(@PathVariable Long id) { // Cambiado a PetResponse
         return ResponseEntity.ok(petService.feedPet(id));
     }
 
     @PostMapping("/{id}/cuddle")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Pet> cuddlePet(@PathVariable Long id) {
+    public ResponseEntity<PetResponse> cuddlePet(@PathVariable Long id) { // Cambiado a PetResponse
         return ResponseEntity.ok(petService.cuddlePet(id));
     }
 }
