@@ -1,5 +1,6 @@
 package com.virtualpet.api.controller;
 
+import com.virtualpet.api.dto.EquipRequest;
 import com.virtualpet.api.dto.PetRequest;
 import com.virtualpet.api.dto.PetResponse; // Asegúrate de importar PetResponse
 import com.virtualpet.api.service.PetService;
@@ -17,7 +18,7 @@ public class PetController {
     private final PetService petService;
 
     @GetMapping
-    public ResponseEntity<List<PetResponse>> getPets() { // Cambiado a List<PetResponse>
+    public ResponseEntity<List<PetResponse>> getPets() {
         return ResponseEntity.ok(petService.getPetsForCurrentUser());
     }
 
@@ -28,7 +29,7 @@ public class PetController {
     }
 
     @PostMapping
-    public ResponseEntity<PetResponse> createPet(@RequestBody PetRequest request) { // Cambiado a PetResponse
+    public ResponseEntity<PetResponse> createPet(@RequestBody PetRequest request) {
         return ResponseEntity.ok(petService.createPet(request));
     }
 
@@ -52,5 +53,13 @@ public class PetController {
     @PostMapping("/{id}/cuddle")
     public ResponseEntity<PetResponse> cuddlePet(@PathVariable Long id) { // Cambiado a PetResponse
         return ResponseEntity.ok(petService.cuddlePet(id));
+    }
+
+    // Dentro de la clase PetController.java
+
+    // --- NUEVO ENDPOINT UNIFICADO ---
+    @PostMapping("/{id}/equip")
+    public ResponseEntity<PetResponse> equipAccessory(@PathVariable Long id, @RequestBody EquipRequest request) {
+        return ResponseEntity.ok(petService.equipAccessory(id, request));
     }
 }

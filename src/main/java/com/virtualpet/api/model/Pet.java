@@ -1,7 +1,7 @@
+// src/main/java/com/virtualpet/api/model/Pet.java
 package com.virtualpet.api.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,18 +19,29 @@ public class Pet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El nombre de la mascota no puede estar vacío")
     private String name;
+    private String creatureType; // Ej: "Mascota Base"
+    private String color;        // Ej: "#FFA500" (naranja)
+    private int hunger;
+    private int sadness;
 
-    private String creatureType; // Lo dejamos para el tipo "Humo"
+    // --- NUEVOS CAMPOS PARA ACCESORIOS ---
+    // Guardaremos un identificador para cada tipo de accesorio.
+    // Son 'nullable' porque la mascota puede no tenerlos equipados.
+    @Column(nullable = true)
+    private String hat;
 
-    private String color;
+    @Column(nullable = true)
+    private String hairstyle;
 
-    private String specialFeatures; // Campo nuevo
+    @Column(nullable = true)
+    private String shirt;
 
-    private int hunger; // Campo nuevo (reemplaza energyLevel)
+    @Column(nullable = true)
+    private String pants;
 
-    private int sadness; // Campo nuevo (reemplaza mood)
+    @Column(nullable = true)
+    private String background;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

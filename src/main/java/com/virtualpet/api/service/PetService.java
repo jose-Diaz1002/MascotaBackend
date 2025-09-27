@@ -1,5 +1,6 @@
 package com.virtualpet.api.service;
 
+import com.virtualpet.api.dto.EquipRequest;
 import com.virtualpet.api.dto.PetRequest;
 import com.virtualpet.api.dto.PetResponse; // Importante: Usamos el DTO
 import com.virtualpet.api.model.Pet;
@@ -23,10 +24,8 @@ public class PetService {
 
     public List<PetResponse> getPetsForCurrentUser() {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return petRepository.findByUser(currentUser)
-                .stream()
-                .map(PetResponse::fromEntity) // Convertimos cada Pet a PetResponse
-                .collect(Collectors.toList());
+        return petRepository.findByUser(currentUser).stream()
+                .map(PetResponse::fromEntity).collect(Collectors.toList());
     }
 
     public List<PetResponse> getAllPets() {
@@ -42,16 +41,13 @@ public class PetService {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Pet newPet = Pet.builder()
                 .name(request.getName())
-                .creatureType("Humo")
+                .creatureType("Mascota Base")
                 .color(request.getColor())
-                .specialFeatures(request.getSpecialFeatures())
                 .hunger(50)
                 .sadness(20)
                 .user(currentUser)
                 .build();
-
-        Pet savedPet = petRepository.save(newPet);
-        return PetResponse.fromEntity(savedPet); // Devolvemos el DTO
+        return PetResponse.fromEntity(petRepository.save(newPet));
     }
 
     public PetResponse updatePet(Long petId, PetRequest request) {
@@ -63,12 +59,16 @@ public class PetService {
             throw new SecurityException("No tienes permiso para actualizar esta mascota");
         }
 
+        // --- CORRECCIÓN ---
+        // Actualizamos solo el nombre y el color, que son los campos
+        // que quedaron en nuestra clase PetRequest.
         petToUpdate.setName(request.getName());
         petToUpdate.setColor(request.getColor());
-        petToUpdate.setSpecialFeatures(request.getSpecialFeatures());
+
+        // Ya no actualizamos 'specialFeatures' aquí.
 
         Pet updatedPet = petRepository.save(petToUpdate);
-        return PetResponse.fromEntity(updatedPet); // Devolvemos el DTO
+        return PetResponse.fromEntity(updatedPet);
     }
 
     public void deletePet(Long petId) {
@@ -98,4 +98,34 @@ public class PetService {
         Pet savedPet = petRepository.save(pet);
         return PetResponse.fromEntity(savedPet); // Devolvemos el DTO
     }
+
+    // --- NUEVO MÉTODO UNIFICADO PARA EQUIPAR ACCESORIOS ---
+    public PetResponse equipAccessory(Long petId, EquipRequest request) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
+
+        // Aquí podrías añadir la lógica de seguridad para verificar el dueño
+
+        switch (request.getAccessoryType().toLowerCase()) {
+            case "hat":
+                pet.setHat(request.getAccessoryName());
+                break;
+            case "hairstyle":
+                pet.setHairstyle(request.getAccessoryName());
+                break;
+            case "shirt":
+                pet.setShirt(request.getAccessoryName());
+                break;
+            case "pants":
+                pet.setPants(request.getAccessoryName());
+                break;
+            case "background":
+                pet.setBackground(request.getAccessoryName());
+                break;
+            default:
+                throw new IllegalArgumentException("Tipo de accesorio no válido: " + request.getAccessoryType());
+        }
+        return PetResponse.fromEntity(petRepository.save(pet));
+    }
+
 }
