@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime; // 1. Importa
 
 @Data
 @Builder
@@ -23,7 +24,9 @@ public class Pet {
     private String creatureType; // Ej: "Mascota Base"
     private String color;        // Ej: "#FFA500" (naranja)
     private int hunger;
-    private int sadness;
+    private int happiness;
+    // 2. Añade este nuevo campo
+    private LocalDateTime lastUpdated;
 
     // --- NUEVOS CAMPOS PARA ACCESORIOS ---
     // Guardaremos un identificador para cada tipo de accesorio.

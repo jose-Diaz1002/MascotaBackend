@@ -33,12 +33,6 @@ public class PetController {
         return ResponseEntity.ok(petService.createPet(request));
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<PetResponse> updatePet(@PathVariable Long id, @RequestBody PetRequest request) { // Cambiado a PetResponse
-        return ResponseEntity.ok(petService.updatePet(id, request));
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePet(@PathVariable Long id) {
         petService.deletePet(id);

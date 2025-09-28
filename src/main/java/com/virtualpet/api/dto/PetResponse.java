@@ -5,6 +5,8 @@ import com.virtualpet.api.model.Pet;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 public class PetResponse {
@@ -12,7 +14,7 @@ public class PetResponse {
     private String name;
     private String color;
     private int hunger;
-    private int sadness;
+    private int happiness;
     private String ownerUsername;
 
     // --- NUEVOS CAMPOS PARA ACCESORIOS ---
@@ -21,6 +23,7 @@ public class PetResponse {
     private String shirt;
     private String pants;
     private String background;
+    private LocalDateTime lastUpdated;
 
     public static PetResponse fromEntity(Pet pet) {
         return PetResponse.builder()
@@ -28,7 +31,7 @@ public class PetResponse {
                 .name(pet.getName())
                 .color(pet.getColor())
                 .hunger(pet.getHunger())
-                .sadness(pet.getSadness())
+                .happiness(pet.getHappiness())
                 .ownerUsername(pet.getUser().getUsername())
                 .hat(pet.getHat())
                 .hairstyle(pet.getHairstyle())
