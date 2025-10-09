@@ -49,9 +49,6 @@ public class PetController {
         return ResponseEntity.ok(petService.cuddlePet(id));
     }
 
-    // Dentro de la clase PetController.java
-
-    // --- NUEVO ENDPOINT UNIFICADO ---
     @PostMapping("/{id}/equip")
     public ResponseEntity<PetResponse> equipAccessory(@PathVariable Long id, @RequestBody EquipRequest request) {
         return ResponseEntity.ok(petService.equipAccessory(id, request));

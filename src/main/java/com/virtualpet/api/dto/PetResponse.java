@@ -1,4 +1,3 @@
-// src/main/java/com/virtualpet/api/dto/PetResponse.java
 package com.virtualpet.api.dto;
 
 import com.virtualpet.api.model.Pet;
@@ -17,7 +16,6 @@ public class PetResponse {
     private int happiness;
     private String ownerUsername;
 
-    // --- NUEVOS CAMPOS PARA ACCESORIOS ---
     private String hat;
     private String hairstyle;
     private String shirt;

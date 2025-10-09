@@ -1,4 +1,3 @@
-// src/main/java/com/virtualpet/api/repository/PetRepository.java
 package com.virtualpet.api.repository;
 
 import com.virtualpet.api.model.Pet;
@@ -9,6 +8,5 @@ import java.util.List; // Importa List
 
 @Repository
 public interface PetRepository extends JpaRepository<Pet, Long> {
-    // Spring Data JPA creará la consulta automáticamente
     List<Pet> findByUser(User user);
 }

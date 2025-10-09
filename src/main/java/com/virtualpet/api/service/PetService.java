@@ -21,12 +21,9 @@ public class PetService {
 
     private final PetRepository petRepository;
 
-    // --- MÉTODOS DE CONSULTA ---
-
     public List<PetResponse> getPetsForCurrentUser() {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Pet> pets = petRepository.findByUser(currentUser);
-        // Actualizamos las estadísticas de cada mascota ANTES de enviarlas
         pets.forEach(this::updatePetStatsOverTime);
         return pets.stream().map(PetResponse::fromEntity).collect(Collectors.toList());
     }
@@ -37,7 +34,6 @@ public class PetService {
         return pets.stream().map(PetResponse::fromEntity).collect(Collectors.toList());
     }
 
-    // --- MÉTODOS DE MODIFICACIÓN ---
 
     public PetResponse createPet(PetRequest request) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -46,19 +42,17 @@ public class PetService {
                 .creatureType("Mascota Base")
                 .color(request.getColor())
                 .hunger(50)
-                .happiness(80) // Usamos 'happiness'
-                .lastUpdated(LocalDateTime.now()) // Establecemos el tiempo de creación
+                .happiness(80)
+                .lastUpdated(LocalDateTime.now())
                 .user(currentUser)
                 .build();
         return PetResponse.fromEntity(petRepository.save(newPet));
     }
 
     public void deletePet(Long petId) {
-        // (Aquí iría la lógica completa de deletePet que ya tenías)
         petRepository.deleteById(petId);
     }
 
-    // --- MÉTODOS DE INTERACCIÓN ---
 
     public PetResponse feedPet(Long petId) {
         Pet pet = petRepository.findById(petId).orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
@@ -83,17 +77,27 @@ public class PetService {
             throw new SecurityException("No tienes permiso para modificar esta mascota");
         }
         switch (request.getAccessoryType().toLowerCase()) {
-            case "hat": pet.setHat(request.getAccessoryName()); break;
-            case "hairstyle": pet.setHairstyle(request.getAccessoryName()); break;
-            case "shirt": pet.setShirt(request.getAccessoryName()); break;
-            case "pants": pet.setPants(request.getAccessoryName()); break;
-            case "background": pet.setBackground(request.getAccessoryName()); break;
-            default: throw new IllegalArgumentException("Tipo de accesorio no válido: " + request.getAccessoryType());
+            case "hat":
+                pet.setHat(request.getAccessoryName());
+                break;
+            case "hairstyle":
+                pet.setHairstyle(request.getAccessoryName());
+                break;
+            case "shirt":
+                pet.setShirt(request.getAccessoryName());
+                break;
+            case "pants":
+                pet.setPants(request.getAccessoryName());
+                break;
+            case "background":
+                pet.setBackground(request.getAccessoryName());
+                break;
+            default:
+                throw new IllegalArgumentException("Tipo de accesorio no válido: " + request.getAccessoryType());
         }
         return PetResponse.fromEntity(petRepository.save(pet));
     }
 
-    // --- LÓGICA DE SIMULACIÓN DE TIEMPO ---
 
     private void updatePetStatsOverTime(Pet pet) {
         if (pet.getLastUpdated() == null) {
@@ -104,18 +108,14 @@ public class PetService {
         long secondsPassed = Duration.between(pet.getLastUpdated(), LocalDateTime.now()).toSeconds();
 
         if (secondsPassed > 0) {
-            // Aumenta el hambre 1 punto cada 30 segundos
             int hungerIncrease = (int) (secondsPassed / 5);
             pet.setHunger(Math.min(100, pet.getHunger() + hungerIncrease));
 
-            // Disminuye la felicidad 1 punto cada 60 segundos
             int happinessDecrease = (int) (secondsPassed / 60);
             pet.setHappiness(Math.max(0, pet.getHappiness() - happinessDecrease));
 
-            // Actualizamos la fecha solo si ha pasado al menos un intervalo
             if (hungerIncrease > 0 || happinessDecrease > 0) {
                 pet.setLastUpdated(LocalDateTime.now());
-                // No guardamos aquí. El método que llama a esta función se encargará de guardar.
             }
         }
     }
