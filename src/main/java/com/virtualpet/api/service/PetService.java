@@ -40,7 +40,7 @@ public class PetService {
         Pet newPet = Pet.builder()
                 .name(request.getName())
                 .creatureType("Mascota Base")
-                .color(request.getColor())
+                .color("#FFA500")
                 .hunger(50)
                 .happiness(80)
                 .lastUpdated(LocalDateTime.now())
@@ -118,5 +118,41 @@ public class PetService {
                 pet.setLastUpdated(LocalDateTime.now());
             }
         }
+    }
+    //metodos añadidos por v0
+    public PetResponse decreaseHappiness(Long petId, int amount) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
+        updatePetStatsOverTime(pet);
+        pet.setHappiness(Math.max(0, pet.getHappiness() - amount));
+        pet.setLastUpdated(LocalDateTime.now());
+        return PetResponse.fromEntity(petRepository.save(pet));
+    }
+
+    public PetResponse increaseHappiness(Long petId, int amount) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
+        updatePetStatsOverTime(pet);
+        pet.setHappiness(Math.min(100, pet.getHappiness() + amount));
+        pet.setLastUpdated(LocalDateTime.now());
+        return PetResponse.fromEntity(petRepository.save(pet));
+    }
+
+    public PetResponse increaseHunger(Long petId, int amount) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
+        updatePetStatsOverTime(pet);
+        pet.setHunger(Math.min(100, pet.getHunger() + amount));
+        pet.setLastUpdated(LocalDateTime.now());
+        return PetResponse.fromEntity(petRepository.save(pet));
+    }
+
+    public PetResponse decreaseHunger(Long petId, int amount) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
+        updatePetStatsOverTime(pet);
+        pet.setHunger(Math.max(0, pet.getHunger() - amount));
+        pet.setLastUpdated(LocalDateTime.now());
+        return PetResponse.fromEntity(petRepository.save(pet));
     }
 }

@@ -2,7 +2,7 @@ package com.virtualpet.api.controller;
 
 import com.virtualpet.api.dto.EquipRequest;
 import com.virtualpet.api.dto.PetRequest;
-import com.virtualpet.api.dto.PetResponse; // Asegúrate de importar PetResponse
+import com.virtualpet.api.dto.PetResponse;
 import com.virtualpet.api.service.PetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -52,5 +52,41 @@ public class PetController {
     @PostMapping("/{id}/equip")
     public ResponseEntity<PetResponse> equipAccessory(@PathVariable Long id, @RequestBody EquipRequest request) {
         return ResponseEntity.ok(petService.equipAccessory(id, request));
+    }
+
+    //------------------------------------
+    //actulizacion v0
+    //-----------------------------------
+
+    @PostMapping("/{id}/decrease-happiness")
+    public ResponseEntity<PetResponse> decreaseHappiness(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "5") int amount
+    ) {
+        return ResponseEntity.ok(petService.decreaseHappiness(id, amount));
+    }
+
+    @PostMapping("/{id}/increase-happiness")
+    public ResponseEntity<PetResponse> increaseHappiness(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "5") int amount
+    ) {
+        return ResponseEntity.ok(petService.increaseHappiness(id, amount));
+    }
+
+    @PostMapping("/{id}/increase-hunger")
+    public ResponseEntity<PetResponse> increaseHunger(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "5") int amount
+    ) {
+        return ResponseEntity.ok(petService.increaseHunger(id, amount));
+    }
+
+    @PostMapping("/{id}/decrease-hunger")
+    public ResponseEntity<PetResponse> decreaseHunger(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "5") int amount
+    ) {
+        return ResponseEntity.ok(petService.decreaseHunger(id, amount));
     }
 }
