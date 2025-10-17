@@ -14,6 +14,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.web.AuthenticationEntryPoint; // Asegúrate de importar esto
 
 import java.util.List;
 
@@ -29,18 +31,32 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
+
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(withDefaults()) // Habilita CORS usando el Bean de abajo
-                .csrf(AbstractHttpConfigurer::disable) // <-- ESTA LÍNEA SOLUCIONA EL ERROR 403
+                .cors(withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception // <-- AÑADE ESTO
+                        .authenticationEntryPoint(authenticationEntryPoint())
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            // Devuelve 401 UNAUTHORIZED con un cuerpo JSON
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"Fallo de autenticación o token inválido/ausente.\"}");
+        };
     }
 
     @Bean
@@ -58,4 +74,6 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
 }

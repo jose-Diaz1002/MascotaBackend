@@ -41,20 +41,18 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         log.info("Intento de login para el usuario: {}", request.getUsername()); // INFO
 
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getUsername(),
-                            request.getPassword()
-                    )
-            );
-            var user = userRepository.findByUsername(request.getUsername())
-                    .orElseThrow(); // El usuario debería existir si la autenticación fue exitosa
-            var jwtToken = jwtService.generateToken(user);
-            return AuthResponse.builder().token(jwtToken).build();
-        }catch (Exception e) {
-            log.error("Fallo de login para {}: {}", request.getUsername(), e.getMessage()); // ERROR
-            throw new RuntimeException("Credenciales inválidas");
-        }
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+                )
+        );
+        var user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(); // El usuario debería existir si la autenticación fue exitosa
+        var jwtToken = jwtService.generateToken(user);
+        return AuthResponse.builder().token(jwtToken).build();
+
+
     }
 }
