@@ -9,6 +9,9 @@ import com.virtualpet.api.repository.PetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.CacheEvict; // <-- Nuevo
+import org.springframework.cache.annotation.Cacheable; // <-- Nuevo
+import lombok.extern.slf4j.Slf4j; // <-- (Opcional, p
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 // @RequiredArgsConstructor: Lombok genera un constructor con los campos final
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PetService {
 
     // Repositorio para acceder a la base de datos de mascotas
@@ -31,7 +35,11 @@ public class PetService {
      * 3. Actualiza las estadísticas basándose en el tiempo transcurrido
      * 4. Convierte las entidades Pet a PetResponse (DTO)
      */
+
+    // El nombre del almacén de caché es 'pets'
+    @Cacheable(value = "pets", key = "#currentUser.id")
     public List<PetResponse> getPetsForCurrentUser() {
+        log.info("Buscando mascotas para el usuario desde la DB (no desde caché)"); // Se ve solo la primera vez
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Pet> pets = petRepository.findByUser(currentUser);
         pets.forEach(this::updatePetStatsOverTime); // Actualiza hambre y felicidad según tiempo
@@ -55,7 +63,11 @@ public class PetService {
      * - happiness: 80 (bastante feliz)
      * - lastUpdated: ahora (para calcular decaimiento futuro)
      */
+
+    // Al crear una nueva mascota, se debe invalidar la caché de la lista de mascotas del usuario
+    @CacheEvict(value = "pets", key = "#result.userId") // El key debe ser el ID del usuario afectado
     public PetResponse createPet(PetRequest request) {
+        log.info("Creando nueva mascota para el usuario.");
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Pet newPet = Pet.builder()
                 .name(request.getName())
@@ -82,6 +94,8 @@ public class PetService {
      * 2. Reduce el hambre en 30 puntos (mínimo 0)
      * 3. Resetea lastUpdated para futuras actualizaciones
      */
+
+
     public PetResponse feedPet(Long petId) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
@@ -200,7 +214,11 @@ public class PetService {
     /**
      * Aumenta la felicidad en una cantidad específica
      */
+
+    // Al modificar una mascota, invalidamos la entrada de caché de ese usuario
+    @CacheEvict(value = "pets", key = "@userService.getCurrentUser().id") // Asume un método para obtener el ID del usuario
     public PetResponse increaseHappiness(Long petId, int amount) {
+        log.info("Aumentando felicidad de la mascota ID {}", petId);
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
         updatePetStatsOverTime(pet);
