@@ -3,12 +3,16 @@ package com.virtualpet.api.controller;
 import com.virtualpet.api.dto.EquipRequest;
 import com.virtualpet.api.dto.PetRequest;
 import com.virtualpet.api.dto.PetResponse;
+import com.virtualpet.api.model.User;
 import com.virtualpet.api.service.PetService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,9 +33,14 @@ public class PetController {
             description = "Devuelve una lista de todas las mascotas del usuario autenticado. Resultado cacheado.",
             responses = @ApiResponse(responseCode = "200", description = "Lista de mascotas (PetResponse).")
     )
-    public ResponseEntity<List<PetResponse>> getPets() {
-        return ResponseEntity.ok(petService.getPetsForCurrentUser());
+
+
+    public List<PetResponse> getPets(Principal principal) {
+        // El principal tiene el username
+        User currentUser = petService.loadUserByUsername(principal.getName());
+        return petService.getPetsForCurrentUser(currentUser);
     }
+
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
@@ -45,8 +54,9 @@ public class PetController {
             description = "Registra una nueva mascota virtual para el usuario autenticado.",
             responses = @ApiResponse(responseCode = "200", description = "Mascota creada exitosamente.")
     )
-    public ResponseEntity<PetResponse> createPet(@RequestBody PetRequest request) {
-        return ResponseEntity.ok(petService.createPet(request));
+    public PetResponse createPet(@RequestBody PetRequest request, Principal principal) {
+        User currentUser = petService.loadUserByUsername(principal.getName());
+        return petService.createPet(request, currentUser);
     }
 
     @DeleteMapping("/{id}")

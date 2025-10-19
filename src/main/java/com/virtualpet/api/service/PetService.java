@@ -6,8 +6,10 @@ import com.virtualpet.api.dto.PetResponse;
 import com.virtualpet.api.model.Pet;
 import com.virtualpet.api.model.User;
 import com.virtualpet.api.repository.PetRepository;
+import com.virtualpet.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.cache.annotation.CacheEvict; // <-- Nuevo
 import org.springframework.cache.annotation.Cacheable; // <-- Nuevo
@@ -27,7 +29,7 @@ public class PetService {
 
     // Repositorio para acceder a la base de datos de mascotas
     private final PetRepository petRepository;
-
+    private final UserRepository userRepository;
     /**
      * Obtiene todas las mascotas del usuario actual (ROLE_USER)
      * 1. Obtiene el usuario autenticado del contexto de seguridad
@@ -35,16 +37,27 @@ public class PetService {
      * 3. Actualiza las estadísticas basándose en el tiempo transcurrido
      * 4. Convierte las entidades Pet a PetResponse (DTO)
      */
-
+/*
     // El nombre del almacén de caché es 'pets'
     @Cacheable(value = "pets", key = "#currentUser.id")
     public List<PetResponse> getPetsForCurrentUser() {
         log.info("Buscando mascotas para el usuario desde la DB (no desde caché)"); // Se ve solo la primera vez
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal(); //aqui
         List<Pet> pets = petRepository.findByUser(currentUser);
         pets.forEach(this::updatePetStatsOverTime); // Actualiza hambre y felicidad según tiempo
         return pets.stream().map(PetResponse::fromEntity).collect(Collectors.toList());
     }
+
+ */
+
+    // Obtener mascotas con caché usando el usuario como parámetro
+    @Cacheable(value = "pets", key = "#user.id")
+    public List<PetResponse> getPetsForCurrentUser(User user) {
+        List<Pet> pets = petRepository.findByUser(user);
+        pets.forEach(this::updatePetStatsOverTime);
+        return pets.stream().map(PetResponse::fromEntity).collect(Collectors.toList());
+    }
+
 
     /**
      * Obtiene TODAS las mascotas del sistema (ROLE_ADMIN)
@@ -65,20 +78,25 @@ public class PetService {
      */
 
     // Al crear una nueva mascota, se debe invalidar la caché de la lista de mascotas del usuario
-    @CacheEvict(value = "pets", key = "#result.userId") // El key debe ser el ID del usuario afectado
-    public PetResponse createPet(PetRequest request) {
+    // Crear nueva mascota y limpiar la caché del usuario correspondiente
+    @CacheEvict(value = "pets", key = "#user.id")
+    public PetResponse createPet(PetRequest request, User user) {
         log.info("Creando nueva mascota para el usuario.");
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Pet newPet = Pet.builder()
                 .name(request.getName())
                 .creatureType("Mascota Base")
-                .color("#FFA500") // Color naranja por defecto
+                .color("#FFA500")
                 .hunger(50)
                 .happiness(80)
                 .lastUpdated(LocalDateTime.now())
-                .user(currentUser)
+                .user(user)
                 .build();
         return PetResponse.fromEntity(petRepository.save(newPet));
+    }
+
+    public User loadUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
     }
 
     /**
