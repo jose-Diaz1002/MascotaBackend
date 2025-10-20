@@ -33,7 +33,6 @@ public class JwtService {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        // Extraemos los roles y los añadimos al claim "role"
         claims.put("role", userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         return generateToken(claims, userDetails);
@@ -44,32 +43,15 @@ public class JwtService {
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // Token válido por 10 horas
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
                 .signWith(getSigningKey())
                 .compact();
     }
 
-
-
-
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
-
-
-/*
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        System.out.println(">>> JWT USERNAME = " + username);
-        System.out.println(">>> USERDETAILS USERNAME = " + userDetails.getUsername());
-        System.out.println(">>> TOKEN EXPIRED? " + isTokenExpired(token));
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }
-
- */
-
-
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());

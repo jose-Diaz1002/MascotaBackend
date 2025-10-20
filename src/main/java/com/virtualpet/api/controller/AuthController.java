@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Autenticación (AUTH)", description = "Registro de nuevos usuarios e inicio de sesión con JWT.") // <-- TAG PRINCIPAL
+@Tag(name = "Autenticación (AUTH)", description = "Registro de nuevos usuarios e inicio de sesión con JWT.")
 public class AuthController {
 
     private final AuthService authService;
@@ -26,7 +26,7 @@ public class AuthController {
     @Operation(
             summary = "Registro de Usuario",
             description = "Crea una nueva cuenta de usuario (ROLE_USER) y devuelve un token JWT.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody( // USANDO RUTA COMPLETA DE SWAGGER
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Datos necesarios para crear un nuevo usuario (username, password).",
                     required = true
             ),
@@ -40,7 +40,7 @@ public class AuthController {
     @Operation(
             summary = "Inicio de Sesión",
             description = "Autentica al usuario con credenciales y devuelve un token JWT.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody( // USANDO RUTA COMPLETA DE SWAGGER
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Credenciales para iniciar sesión (username, password).",
                     required = true
             ),
@@ -52,4 +52,5 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
+
 }

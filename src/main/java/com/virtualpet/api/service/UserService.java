@@ -18,40 +18,31 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    /**
-     * Obtiene todos los usuarios del sistema (solo para ADMIN)
-     */
     public List<UserResponse> getAllUsers() {
-        log.debug("ADMIN: Solicitando la lista completa de usuarios."); // DEBUG/INFO
+        log.debug("ADMIN: Solicitando la lista completa de usuarios.");
         return userRepository.findAll().stream()
                 .map(user -> UserResponse.builder()
                         .id(user.getId())
                         .username(user.getUsername())
-                        .role(user.getRole().name()) // Convierte el enum a String
+                        .role(user.getRole().name())
                         .build())
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Cambia el rol de un usuario
-     */
     public UserResponse changeUserRole(Long userId, String newRole) {
-        log.warn("ADMIN: Intentando cambiar el rol del usuario ID {} a {}", userId, newRole); // WARN
+        log.warn("ADMIN: Intentando cambiar el rol del usuario ID {} a {}", userId, newRole);
         // Buscar el usuario
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + userId));
 
-        // Validar que el rol sea válido
         if (!newRole.equals("ROLE_USER") && !newRole.equals("ROLE_ADMIN")) {
-            log.error("Intento de asignar rol inválido: {}", newRole); // ERROR
+            log.error("Intento de asignar rol inválido: {}", newRole);
             throw new IllegalArgumentException("Rol inválido. Use ROLE_USER o ROLE_ADMIN");
         }
         log.info("Rol del usuario ID {} actualizado a {}", userId, newRole); // INFO
-        // Cambiar el rol
         user.setRole(Role.valueOf(newRole));
         User updatedUser = userRepository.save(user);
 
-        // Devolver la respuesta
         return UserResponse.builder()
                 .id(updatedUser.getId())
                 .username(updatedUser.getUsername())

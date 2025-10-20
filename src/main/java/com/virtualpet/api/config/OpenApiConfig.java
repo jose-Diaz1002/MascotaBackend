@@ -1,4 +1,4 @@
-package com.virtualpet.api.config; // Ajusta el paquete
+package com.virtualpet.api.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -19,17 +19,13 @@ import org.springframework.context.annotation.Configuration;
                         email = "jldi1002@hotmail.com"
                 )
         ),
-        // Esto añade el candado de seguridad a todos los endpoints por defecto
         security = @SecurityRequirement(name = "bearerAuth")
 )
-// Define cómo se ve el esquema de seguridad (el candado) en Swagger UI
 @SecurityScheme(
-        name = "bearerAuth", // Nombre que se usa en @SecurityRequirement
+        name = "bearerAuth",
         type = SecuritySchemeType.HTTP,
         scheme = "bearer",
         bearerFormat = "JWT"
 )
 public class OpenApiConfig {
-    // Esta clase no necesita código en el cuerpo,
-    // las anotaciones hacen todo el trabajo de configuración.
 }

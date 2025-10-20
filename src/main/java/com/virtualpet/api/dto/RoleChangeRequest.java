@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Solicitud para cambiar el rol de un usuario.") // <-- DESCRIPCIÓN DEL DTO
+@Schema(description = "Solicitud para cambiar el rol de un usuario.")
 public class RoleChangeRequest {
     @Schema(description = "El nuevo rol a asignar. Debe ser 'ROLE_USER' o 'ROLE_ADMIN'.",
-            example = "ROLE_ADMIN") // <-- DESCRIPCIÓN DEL CAMPO
+            example = "ROLE_ADMIN")
     private String newRole;
 }

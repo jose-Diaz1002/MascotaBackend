@@ -4,14 +4,12 @@ import com.virtualpet.api.dto.RoleChangeRequest;
 import com.virtualpet.api.dto.UserResponse;
 import com.virtualpet.api.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.Operation; // Importante
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
@@ -19,14 +17,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@Tag(name = "Gestión de Usuarios", description = "Endpoints para administradores para listar y modificar usuarios.") // <-- DESCRIPCIÓN DEL CONTROLADOR
+@Tag(name = "Gestión de Usuarios", description = "Endpoints para administradores para listar y modificar usuarios.")
 public class UserController {
 
     private final UserService userService;
 
-    /**
-     * GET /api/users - Obtiene todos los usuarios (solo ADMIN)
-     */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
@@ -37,20 +32,16 @@ public class UserController {
                     @ApiResponse(responseCode = "403", description = "Prohibido: No tiene rol ADMIN.")
             }
     )
-
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    /**
-     * PUT /api/users/{userId}/role - Cambia el rol de un usuario (solo ADMIN)
-     */
     @PutMapping("/{userId}/role")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Cambiar Rol de Usuario",
             description = "Permite a un administrador cambiar el rol de un usuario por su ID.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody( // USANDO RUTA COMPLETA DE SWAGGER
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Nuevo rol a asignar (ROLE_USER o ROLE_ADMIN).",
                     required = true
             ),
@@ -61,7 +52,7 @@ public class UserController {
             }
     )
     public ResponseEntity<UserResponse> changeUserRole(
-            @Parameter(description = "ID del usuario cuyo rol será modificado.") // DESCRIPCIÓN DEL PATH VARIABLE
+            @Parameter(description = "ID del usuario cuyo rol será modificado.")
             @PathVariable Long userId,
             @RequestBody RoleChangeRequest request) {
         UserResponse updatedUser = userService.changeUserRole(userId, request.getNewRole());

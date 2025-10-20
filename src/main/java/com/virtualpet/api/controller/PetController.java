@@ -9,11 +9,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 @RestController
 @RequestMapping("/api/pets")
 @RequiredArgsConstructor
-@Tag(name = "Gestión de Mascotas", description = "CRUD y manipulación de las mascotas virtuales del usuario.") // <-- TAG PRINCIPAL
+@Tag(name = "Gestión de Mascotas", description = "CRUD y manipulación de las mascotas virtuales del usuario.")
 public class PetController {
 
     private final PetService petService;
@@ -33,18 +33,14 @@ public class PetController {
             description = "Devuelve una lista de todas las mascotas del usuario autenticado. Resultado cacheado.",
             responses = @ApiResponse(responseCode = "200", description = "Lista de mascotas (PetResponse).")
     )
-
-
     public List<PetResponse> getPets(Principal principal) {
-        // El principal tiene el username
         User currentUser = petService.loadUserByUsername(principal.getName());
         return petService.getPetsForCurrentUser(currentUser);
     }
 
-
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<PetResponse>> getAllPetsForAdmin() { // Cambiado a List<PetResponse>
+    public ResponseEntity<List<PetResponse>> getAllPetsForAdmin() {
         return ResponseEntity.ok(petService.getAllPets());
     }
 
@@ -94,10 +90,6 @@ public class PetController {
     public ResponseEntity<PetResponse> equipAccessory(@PathVariable Long id, @RequestBody EquipRequest request) {
         return ResponseEntity.ok(petService.equipAccessory(id, request));
     }
-
-    //------------------------------------
-    //actulizacion v0
-    //-----------------------------------
 
     @PostMapping("/{id}/decrease-happiness")
     public ResponseEntity<PetResponse> decreaseHappiness(

@@ -25,11 +25,11 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) {
-        log.info("Iniciando registro para el usuario: {}", request.getUsername()); // INFO
+        log.info("Iniciando registro para el usuario: {}", request.getUsername());
         var user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.ROLE_USER) // Todos los nuevos registros son de tipo USER
+                .role(Role.ROLE_USER)
                 .build();
 
         userRepository.save(user);
@@ -39,7 +39,7 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        log.info("Intento de login para el usuario: {}", request.getUsername()); // INFO
+        log.info("Intento de login para el usuario: {}", request.getUsername());
 
 
         authenticationManager.authenticate(
@@ -49,10 +49,8 @@ public class AuthService {
                 )
         );
         var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(); // El usuario debería existir si la autenticación fue exitosa
+                .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         return AuthResponse.builder().token(jwtToken).build();
-
-
     }
 }

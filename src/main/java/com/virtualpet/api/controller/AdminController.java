@@ -21,9 +21,6 @@ public class AdminController {
 
     private final PetService petService;
 
-    /**
-     * GET /api/admin/pets - Obtiene todas las mascotas del sistema (solo ADMIN)
-     */
     @GetMapping("/pets")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
@@ -40,9 +37,6 @@ public class AdminController {
         return ResponseEntity.ok(pets);
     }
 
-    /**
-     * DELETE /api/admin/pets/{id} - Elimina una mascota (solo ADMIN)
-     */
     @DeleteMapping("/pets/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(

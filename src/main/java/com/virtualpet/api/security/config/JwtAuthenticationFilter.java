@@ -32,7 +32,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String requestURI = request.getRequestURI();
 
-        // Permitir acceso sin JWT a endpoints públicos
         if (requestURI.startsWith("/api/auth/") ||
                 requestURI.contains("/swagger-ui/") ||
                 requestURI.contains("/v3/api-docs")) {
@@ -45,7 +44,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String username;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            // Si no hay token y no es endpoint público, rechazar
             if (!requestURI.startsWith("/api/auth/")) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
