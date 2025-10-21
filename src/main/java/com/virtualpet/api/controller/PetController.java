@@ -82,7 +82,7 @@ public class PetController {
 
     @PostMapping("/{id}/cuddle")
     @Operation(summary = "Acariciar Mascota", description = "Aumenta la felicidad de la mascota.")
-    public ResponseEntity<PetResponse> cuddlePet(@PathVariable Long id) { // Cambiado a PetResponse
+    public ResponseEntity<PetResponse> cuddlePet(@PathVariable Long id) {
         return ResponseEntity.ok(petService.cuddlePet(id));
     }
 
