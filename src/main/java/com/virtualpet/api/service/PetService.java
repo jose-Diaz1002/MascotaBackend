@@ -48,13 +48,30 @@ public class PetService {
                 .name(request.getName())
                 .creatureType("Mascota Base")
                 .color("#FFA500")
-                .hunger(50)
-                .happiness(80)
+                .hunger(80)
+                .happiness(50)
                 .lastUpdated(LocalDateTime.now())
                 .user(user)
                 .build();
         return PetResponse.fromEntity(petRepository.save(newPet));
     }
+
+    public PetResponse updatePet(Long id, PetRequest request, User user) {
+        Pet pet = petRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
+
+        if (!pet.getUser().getId().equals(user.getId())) {
+            throw new SecurityException("No tienes permiso para modificar esta mascota");
+        }
+
+        pet.setHappiness(request.getHappiness());
+        pet.setHunger(request.getHunger());
+        pet.setLastUpdated(LocalDateTime.now());
+        petRepository.save(pet);
+
+        return PetResponse.fromEntity(pet);
+    }
+
 
     public User loadUserByUsername(String username) {
         return userRepository.findByUsername(username)
@@ -69,7 +86,7 @@ public class PetService {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
         updatePetStatsOverTime(pet);
-        pet.setHunger(Math.max(0, pet.getHunger() - 30));
+        pet.setHunger(Math.max(0, pet.getHunger() - 10)); // estaba enn 30
         pet.setLastUpdated(LocalDateTime.now());
         return PetResponse.fromEntity(petRepository.save(pet));
     }
@@ -122,10 +139,10 @@ public class PetService {
         long secondsPassed = Duration.between(pet.getLastUpdated(), LocalDateTime.now()).toSeconds();
 
         if (secondsPassed > 0) {
-            int hungerIncrease = (int) (secondsPassed / 5);
+            int hungerIncrease = (int) (secondsPassed / 30);
             pet.setHunger(Math.min(100, pet.getHunger() + hungerIncrease));
 
-            int happinessDecrease = (int) (secondsPassed / 60);
+            int happinessDecrease = (int) (secondsPassed / 30);
             pet.setHappiness(Math.max(0, pet.getHappiness() - happinessDecrease));
 
             if (hungerIncrease > 0 || happinessDecrease > 0) {

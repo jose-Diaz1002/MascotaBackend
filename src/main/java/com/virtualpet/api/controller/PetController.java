@@ -55,6 +55,22 @@ public class PetController {
         return petService.createPet(request, currentUser);
     }
 
+    @PutMapping("/{id}")
+    @Operation(
+            summary = "Actualizar estadísticas de la mascota",
+            description = "Permite actualizar hambre y felicidad de una mascota concreta."
+    )
+    public ResponseEntity<PetResponse> updatePet(
+            @PathVariable Long id,
+            @RequestBody PetRequest request,
+            Principal principal) {
+
+        User currentUser = petService.loadUserByUsername(principal.getName());
+        PetResponse updatedPet = petService.updatePet(id, request, currentUser);
+        return ResponseEntity.ok(updatedPet);
+    }
+
+
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Eliminar Mascota",
