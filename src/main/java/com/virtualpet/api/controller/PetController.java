@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 
-
 @RestController
 @RequestMapping("/api/pets")
 @RequiredArgsConstructor
@@ -28,60 +27,37 @@ public class PetController {
     private final PetService petService;
 
     @GetMapping
-    @Operation(
-            summary = "Obtener Mascotas del Usuario",
-            description = "Devuelve una lista de todas las mascotas del usuario autenticado. Resultado cacheado.",
-            responses = @ApiResponse(responseCode = "200", description = "Lista de mascotas (PetResponse).")
-    )
     public List<PetResponse> getPets(Principal principal) {
         User currentUser = petService.loadUserByUsername(principal.getName());
         return petService.getPetsForCurrentUser(currentUser);
     }
 
-    @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<PetResponse>> getAllPetsForAdmin() {
-        return ResponseEntity.ok(petService.getAllPets());
-    }
-
     @PostMapping
-    @Operation(
-            summary = "Crear Nueva Mascota",
-            description = "Registra una nueva mascota virtual para el usuario autenticado.",
-            responses = @ApiResponse(responseCode = "200", description = "Mascota creada exitosamente.")
-    )
     public PetResponse createPet(@RequestBody PetRequest request, Principal principal) {
         User currentUser = petService.loadUserByUsername(principal.getName());
         return petService.createPet(request, currentUser);
     }
 
+    @PutMapping("/{id}")
+    @Operation(summary = "Actualizar estadísticas de la mascota", description = "Permite actualizar los valores de hambre y felicidad.")
+    public ResponseEntity<PetResponse> updatePetStats(
+            @PathVariable Long id,
+            @RequestBody PetRequest request) {
+        return ResponseEntity.ok(petService.updatePetStats(id, request));
+    }
+
     @DeleteMapping("/{id}")
-    @Operation(
-            summary = "Eliminar Mascota",
-            description = "Elimina una mascota por su ID. Invalida la caché del usuario.",
-            responses = @ApiResponse(responseCode = "204", description = "Mascota eliminada.")
-    )
-    public ResponseEntity<Void> deletePet(
-            @Parameter(description = "ID de la mascota a eliminar.")
-            @PathVariable Long id) {
+    public ResponseEntity<Void> deletePet(@PathVariable Long id) {
         petService.deletePet(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/feed")
-    @Operation(
-            summary = "Alimentar Mascota",
-            description = "Disminuye el hambre de la mascota. Invalida la caché.",
-            responses = @ApiResponse(responseCode = "200", description = "Estadísticas de la mascota actualizadas.")
-    )
-    public ResponseEntity<PetResponse> feedPet(
-            @Parameter(description = "ID de la mascota a alimentar.")
-            @PathVariable Long id) {
+    public ResponseEntity<PetResponse> feedPet(@PathVariable Long id) {
         return ResponseEntity.ok(petService.feedPet(id));
     }
 
     @PostMapping("/{id}/cuddle")
-    @Operation(summary = "Acariciar Mascota", description = "Aumenta la felicidad de la mascota.")
     public ResponseEntity<PetResponse> cuddlePet(@PathVariable Long id) {
         return ResponseEntity.ok(petService.cuddlePet(id));
     }
@@ -91,35 +67,31 @@ public class PetController {
         return ResponseEntity.ok(petService.equipAccessory(id, request));
     }
 
-    @PostMapping("/{id}/decrease-happiness")
-    public ResponseEntity<PetResponse> decreaseHappiness(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "5") int amount
-    ) {
-        return ResponseEntity.ok(petService.decreaseHappiness(id, amount));
-    }
-
     @PostMapping("/{id}/increase-happiness")
     public ResponseEntity<PetResponse> increaseHappiness(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "5") int amount
-    ) {
+            @RequestParam(defaultValue = "5") int amount) {
         return ResponseEntity.ok(petService.increaseHappiness(id, amount));
+    }
+
+    @PostMapping("/{id}/decrease-happiness")
+    public ResponseEntity<PetResponse> decreaseHappiness(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "5") int amount) {
+        return ResponseEntity.ok(petService.decreaseHappiness(id, amount));
     }
 
     @PostMapping("/{id}/increase-hunger")
     public ResponseEntity<PetResponse> increaseHunger(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "5") int amount
-    ) {
+            @RequestParam(defaultValue = "5") int amount) {
         return ResponseEntity.ok(petService.increaseHunger(id, amount));
     }
 
     @PostMapping("/{id}/decrease-hunger")
     public ResponseEntity<PetResponse> decreaseHunger(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "5") int amount
-    ) {
+            @RequestParam(defaultValue = "5") int amount) {
         return ResponseEntity.ok(petService.decreaseHunger(id, amount));
     }
 }
