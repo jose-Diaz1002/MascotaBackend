@@ -39,6 +39,7 @@ public class PetController {
     }
 
     @PutMapping("/{id}")
+<<<<<<< HEAD
     @Operation(summary = "Actualizar estadísticas de la mascota", description = "Permite actualizar los valores de hambre y felicidad.")
     public ResponseEntity<PetResponse> updatePetStats(
             @PathVariable Long id,
@@ -46,6 +47,23 @@ public class PetController {
         return ResponseEntity.ok(petService.updatePetStats(id, request));
     }
 
+=======
+    @Operation(
+            summary = "Actualizar estadísticas de la mascota",
+            description = "Permite actualizar hambre y felicidad de una mascota concreta."
+    )
+    public ResponseEntity<PetResponse> updatePet(
+            @PathVariable Long id,
+            @RequestBody PetRequest request,
+            Principal principal) {
+
+        User currentUser = petService.loadUserByUsername(principal.getName());
+        PetResponse updatedPet = petService.updatePet(id, request, currentUser);
+        return ResponseEntity.ok(updatedPet);
+    }
+
+
+>>>>>>> ee2a42679cf523c86b2fe5cbc034ea39a1dcd313
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePet(@PathVariable Long id) {
         petService.deletePet(id);

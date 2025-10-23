@@ -44,7 +44,7 @@ DESCRIBE users;
 
 -- 7. CAMBIAR EL ROLE DE UN USUARIO
 -- Hacer admin a un usuario
-UPDATE users SET role = 'ROLE_ADMIN' WHERE username = 'jose';
+UPDATE users SET role = 'ROLE_ADMIN' WHERE username = 'admin';
 
 -- Volver a usuario normal
 UPDATE users SET role = 'ROLE_USER' WHERE username = 'jose';

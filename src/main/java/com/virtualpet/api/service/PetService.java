@@ -28,18 +28,6 @@ public class PetService {
     private final PetRepository petRepository;
     private final UserRepository userRepository;
 
-    public PetResponse updatePetStats(Long petId, PetRequest request) {
-        Pet pet = petRepository.findById(petId)
-                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
-
-        if (request.getHunger() >= 0) pet.setHunger(request.getHunger());
-        if (request.getHappiness() >= 0) pet.setHappiness(request.getHappiness());
-        pet.setLastUpdated(LocalDateTime.now());
-
-        return PetResponse.fromEntity(petRepository.save(pet));
-    }
-
-
     @Cacheable(value = "pets", key = "#user.id")
     public List<PetResponse> getPetsForCurrentUser(User user) {
         List<Pet> pets = petRepository.findByUser(user);
@@ -134,10 +122,10 @@ public class PetService {
         long secondsPassed = Duration.between(pet.getLastUpdated(), LocalDateTime.now()).toSeconds();
 
         if (secondsPassed > 0) {
-            int hungerIncrease = (int) (secondsPassed / 10);
+            int hungerIncrease = (int) (secondsPassed / 5);
             pet.setHunger(Math.min(100, pet.getHunger() + hungerIncrease));
 
-            int happinessDecrease = (int) (secondsPassed / 10);
+            int happinessDecrease = (int) (secondsPassed / 60);
             pet.setHappiness(Math.max(0, pet.getHappiness() - happinessDecrease));
 
             if (hungerIncrease > 0 || happinessDecrease > 0) {
